@@ -1,4 +1,4 @@
-/* Basic, clean UI */
+/* HP67 Rechnungstool – UI + Print-Fix (nur Rechnung drucken) */
 :root{
   --bg:#0b1220;
   --card:#111827;
@@ -25,8 +25,6 @@ a{color:var(--pri)}
 .btn-danger{background:var(--warn)}
 .layout{display:grid;grid-template-columns: 1fr 1fr;gap:1rem;padding:1rem}
 .panel{background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:1rem}
-.panel-form{}
-.panel-preview{}
 .grid.two{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 .row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
 .field{display:flex;flex-direction:column;gap:.25rem;margin:.35rem 0}
@@ -51,13 +49,27 @@ a{color:var(--pri)}
 .totals{width:100%;margin-top:6mm;display:grid;grid-template-columns:1fr auto;gap:4px;font-size:12px}
 .notes{margin-top:10mm;font-size:12px;white-space:pre-wrap}
 
-/* Print */
+/* Print: nur Rechnung (#invoice) */
 @media print{
-  body{background:white}
-  header,footer,.panel-form{display:none}
-  .panel-preview{border:none;padding:0;margin:0}
-  .invoice{box-shadow:none;border-radius:0;padding:12mm}
+  /* Seite */
+  body{background:#fff !important;}
+
+  /* Alles ausblenden */
+  body *{visibility:hidden !important;}
+
+  /* Nur Rechnung sichtbar */
+  #invoice, #invoice *{visibility:visible !important;}
+
+  /* Rechnung korrekt positionieren und ohne UI-Effekte */
+  #invoice{
+    position:absolute !important;
+    left:0; top:0; width:100%;
+    margin:0 !important; padding:12mm !important;
+    box-shadow:none !important; background:#fff !important;
+    border-radius:0 !important;
+  }
 }
+
 @media (max-width: 980px){
   .layout{grid-template-columns:1fr}
 }
