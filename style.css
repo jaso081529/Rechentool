@@ -1,0 +1,63 @@
+/* Basic, clean UI */
+:root{
+  --bg:#0b1220;
+  --card:#111827;
+  --muted:#1f2937;
+  --text:#e5e7eb;
+  --sub:#9ca3af;
+  --pri:#3b82f6;
+  --warn:#ef4444;
+  --ok:#10b981;
+  --border:#2b3446;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+h1,h2,h3{margin:.25rem 0 .75rem}
+a{color:var(--pri)}
+.app-header,.app-footer{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:10}
+.app-footer{border-top:1px solid var(--border);border-bottom:none;bottom:0;position:sticky;margin-top:1rem}
+.brand{display:flex;gap:.5rem;align-items:center}
+.logo{width:28px;height:28px;border-radius:6px}
+.header-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+.btn{background:var(--pri);border:none;color:white;padding:.55rem .8rem;border-radius:.6rem;cursor:pointer}
+.btn:hover{opacity:.95}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-danger{background:var(--warn)}
+.layout{display:grid;grid-template-columns: 1fr 1fr;gap:1rem;padding:1rem}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:1rem}
+.panel-form{}
+.panel-preview{}
+.grid.two{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:.25rem;margin:.35rem 0}
+.field input,.field textarea,.field select{background:var(--muted);border:1px solid var(--border);color:var(--text);padding:.55rem .6rem;border-radius:.45rem;width:100%}
+#items{display:flex;flex-direction:column;gap:.5rem;margin:.5rem 0}
+.item{display:grid;grid-template-columns:2fr .7fr .7fr 1fr .7fr auto;gap:.5rem;align-items:center;background:var(--muted);border:1px solid var(--border);padding:.5rem;border-radius:.6rem}
+.item input{width:100%}
+.item .x{background:transparent;border:1px solid var(--border);color:var(--sub);border-radius:.45rem;padding:.35rem .5rem}
+.action-bar{display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap}
+
+/* Invoice A4 */
+.invoice{background:white;color:black;border-radius:.5rem;padding:18mm;min-height:297mm;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.invoice *{color:black}
+.invoice .head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14mm}
+.invoice .meta{font-size:12px;line-height:1.4}
+.invoice .seller{max-width:60%}
+.invoice h1{font-size:28px;margin:0 0 2mm}
+.table{width:100%;border-collapse:collapse;font-size:12px}
+.table th,.table td{border:1px solid #ddd;padding:6px}
+.table th{background:#f3f4f6;text-align:left}
+.table .right{text-align:right}
+.totals{width:100%;margin-top:6mm;display:grid;grid-template-columns:1fr auto;gap:4px;font-size:12px}
+.notes{margin-top:10mm;font-size:12px;white-space:pre-wrap}
+
+/* Print */
+@media print{
+  body{background:white}
+  header,footer,.panel-form{display:none}
+  .panel-preview{border:none;padding:0;margin:0}
+  .invoice{box-shadow:none;border-radius:0;padding:12mm}
+}
+@media (max-width: 980px){
+  .layout{grid-template-columns:1fr}
+}
