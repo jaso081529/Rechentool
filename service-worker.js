@@ -1,5 +1,5 @@
-// Simple offline cache
-const CACHE = 'hp67-invoice-v1';
+// Simple offline cache (bumped)
+const CACHE = 'hp67-invoice-v2'; // bump to invalidate old assets
 const ASSETS = [
   './',
   './index.html',

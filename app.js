@@ -1,10 +1,23 @@
 /* HP67 Rechnungstool - Vanilla JS, offline, PWA.
- * PDF: nutzt Browser-Druckdialog (Speichern als PDF). Kein Fremd-CDN.
+ * Fixes: LocalStorage-Hardening + Safari-sicheres PDF (kein Popup).
  */
 const $ = sel => document.querySelector(sel);
 const $$ = sel => Array.from(document.querySelectorAll(sel));
 
 const KEY = 'hp67_invoice_app_v1';
+
+// ---- Storage Hardening ----
+let STORAGE_OK = true;
+(function testStorage(){
+  try{
+    localStorage.setItem('__hp67_test__','1');
+    localStorage.removeItem('__hp67_test__');
+  }catch(e){
+    STORAGE_OK = false;
+    console.warn('localStorage nicht verfügbar:', e);
+    setTimeout(()=>alert('Hinweis: Lokaler Speicher ist blockiert. Daten werden nur temporär gespeichert. Nutze „JSON exportieren“.')),0;
+  }
+})();
 
 const state = {
   company:{
@@ -58,9 +71,15 @@ function fmt(amount, currency){
   }
 }
 function save(){
-  localStorage.setItem(KEY, JSON.stringify(state));
+  if(!STORAGE_OK) return;
+  try{
+    localStorage.setItem(KEY, JSON.stringify(state));
+  }catch(e){
+    console.warn('Speichern fehlgeschlagen:', e);
+  }
 }
 function load(){
+  if(!STORAGE_OK) return;
   const raw = localStorage.getItem(KEY);
   if(!raw) return;
   try{
@@ -68,7 +87,9 @@ function load(){
     Object.assign(state.company, obj.company||{});
     state.customers = obj.customers||[];
     Object.assign(state.current, obj.current||{});
-  }catch{}
+  }catch(e){
+    console.warn('Laden fehlgeschlagen:', e);
+  }
 }
 function clone(o){return JSON.parse(JSON.stringify(o));}
 
@@ -403,8 +424,15 @@ function wire(){
     const txt = await file.text();
     try{
       const obj = JSON.parse(txt);
-      localStorage.setItem(KEY, JSON.stringify(obj));
-      load(); populateForm(); renderPreview();
+      if(STORAGE_OK){
+        localStorage.setItem(KEY, JSON.stringify(obj));
+        load();
+      }else{
+        Object.assign(state.company, obj.company||{});
+        state.customers = obj.customers||[];
+        Object.assign(state.current, obj.current||{});
+      }
+      populateForm(); renderPreview();
       alert('Import erfolgreich.');
     }catch{
       alert('Ungültige JSON-Datei.');
@@ -412,30 +440,17 @@ function wire(){
   });
   $('#btn-reset').addEventListener('click', ()=>{
     if(!confirm('Wirklich alles zurücksetzen?')) return;
-    localStorage.removeItem(KEY); location.reload();
+    if(STORAGE_OK) localStorage.removeItem(KEY);
+    location.reload();
   });
 
-  // preview and print
+  // ---- Preview + Print (Safari-sicher) ----
   $('#btn-preview').addEventListener('click', renderPreview);
-  $('#btn-open-print').addEventListener('click', () => openPrintWindow());
-  $('#btn-print').addEventListener('click', () => {
-    // Create a print-only window and trigger print. User selects "Als PDF speichern".
-    openPrintWindow(true);
-  });
-}
 
-function openPrintWindow(autoPrint=false){
-  const win = window.open('', '_blank', 'noopener,noreferrer');
-  const css = document.querySelector('link[rel=stylesheet]').href;
-  const html = `<!doctype html><html lang="de"><head>
-    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Rechnung ${escapeHtml(state.current.number||'')}</title>
-    <link rel="stylesheet" href="${css}">
-    <style>@media print{.invoice{padding:12mm}}</style>
-  </head><body>${$('#invoice').outerHTML}
-  <script>window.addEventListener('load', ()=>{ ${autoPrint?'window.print();':''} });<\/script>
-  </body></html>`;
-  win.document.open(); win.document.write(html); win.document.close();
+  // Kein neues Fenster. Direkt System-Printdialog öffnen → „Als PDF sichern“ wählen.
+  const doPrint = ()=>{ window.focus(); window.print(); };
+  $('#btn-print').addEventListener('click', doPrint);
+  $('#btn-open-print').addEventListener('click', doPrint);
 }
 
 function fileToDataUrl(file){
